@@ -1,0 +1,98 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com"
+    }
+  ],
+  "types": [
+    {
+      "id": 1,
+      "name": "income"
+    },
+    {
+      "id": 2,
+      "name": "expense"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Salary",
+      "typeId": 1
+    },
+    {
+      "id": 2,
+      "name": "Groceries",
+      "typeId": 2
+    },
+    {
+      "id": 3,
+      "name": "Utilities",
+      "typeId": 2
+    },
+    {
+      "id": 4,
+      "name": "Freelance",
+      "typeId": 1
+    },
+    {
+      "id": 5,
+      "name": "Entertainment",
+      "typeId": 2
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1,
+      "userId": 1,
+      "name": "Salary",
+      "amount": 1500.00,
+      "typeId": 1,
+      "categoryId": 1,
+      "date": "2024-11-30"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "name": "Groceries",
+      "amount": 120.50,
+      "typeId": 2,
+      "categoryId": 2,
+      "date": "2024-11-28"
+    },
+    {
+      "id": 3,
+      "userId": 2,
+      "name": "Electricity Bill",
+      "amount": 75.30,
+      "typeId": 2,
+      "categoryId": 3,
+      "date": "2024-11-27"
+    },
+    {
+      "id": 4,
+      "userId": 2,
+      "name": "Freelance Project",
+      "amount": 500.00,
+      "typeId": 1,
+      "categoryId": 4,
+      "date": "2024-11-26"
+    },
+    {
+      "id": 5,
+      "userId": 1,
+      "name": "Cinema",
+      "amount": 15.00,
+      "typeId": 2,
+      "categoryId": 5,
+      "date": "2024-11-25"
+    }
+  ]
+}

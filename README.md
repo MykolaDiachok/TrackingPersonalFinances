@@ -1,59 +1,41 @@
 # Tpf
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.2.
+# **Expense Tracker Application**
 
-## Development server
+### **Description:**
 
-To start a local development server, run:
+You need to create a web application for tracking personal finances. The user should be able to add expenses and incomes, view the overall balance, and filter records by categories.
 
-```bash
-ng serve
-```
+### **Functional Requirements:**
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+1. **Adding Income and Expenses**
+  - The user can add records for income and expenses through a form:
+    - Name (required)
+    - Amount (required, float, two decimal places)
+    - Transaction type (income or expense)
+    - Category (e.g., "Groceries," "Salary," "Entertainment," etc.)
+    - Transaction date (default to current date but can be changed)
+2. **Viewing Total Balance**
+  - The application should display the current balance: the total amount of income minus expenses.
+3. **Transaction List**
+  - The user can view all transactions in a list format:
+    - Transaction name
+    - Amount
+    - Category
+    - Date
+4. **Filtering Transactions**
+  - The user can filter transactions by type (income or expense) and by categories.
+  - The ability to sort records by date or amount.
+5. **Data Persistence**
+  - All data must be stored in localStorage so that records persist after a page reload.
 
-## Code scaffolding
+### **Technical Requirements:**
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Angular latest version
+- Keeping the code clean (use eslint for check)
+- Readable and understandable names of variables, classes, functions and methods
+- Use the types `any` and `unknown` as little as possible
+- Use of third-party libraries is allowed
+- Everything should to be developed taking into account the fact that in the future it is possible to add other types of questions.
+- All application state and all data must be stored in local storage. That is, after reloading the page, the state of the application must be restored. All previously created questions and answers must be restored.
+- Responsive design for convenient use on mobile devices. (optional)
