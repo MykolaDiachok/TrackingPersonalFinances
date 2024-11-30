@@ -2,12 +2,13 @@ import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } fr
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { DataStore } from './stores/data-store.service';
+import { DataStore } from './stores/data.store';
 import { provideComponentStore } from '@ngrx/component-store';
 import { StoreModule } from '@ngrx/store';
 import { componentStateReducer } from './stores/component-state.reducer';
 import { StoreDevtools, StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,5 +23,6 @@ export const appConfig: ApplicationConfig = {
         logOnly: false,
       }),
     ),
+    provideAnimationsAsync(),
   ],
 };

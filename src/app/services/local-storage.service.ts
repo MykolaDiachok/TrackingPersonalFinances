@@ -24,12 +24,20 @@ export class LocalStorageService {
     this.saveToLocalStorage(this.APP_USERS_KEY, users);
   }
 
+  hasUsers(): boolean {
+    return this.hasKey(this.APP_USERS_KEY);
+  }
+
   getTransactionTypes(): TransactionType[] {
     return this.getFromLocalStorage<TransactionType[]>(this.TRANSACTION_TYPES_KEY) || [];
   }
 
   saveTransactionTypes(types: TransactionType[]): void {
     this.saveToLocalStorage(this.TRANSACTION_TYPES_KEY, types);
+  }
+
+  hasTransactionTypes(): boolean {
+    return this.hasKey(this.TRANSACTION_TYPES_KEY);
   }
 
   getTransactionCategories(): TransactionCategory[] {
@@ -40,12 +48,20 @@ export class LocalStorageService {
     this.saveToLocalStorage(this.TRANSACTION_CATEGORIES_KEY, categories);
   }
 
+  hasTransactionCategories(): boolean {
+    return this.hasKey(this.TRANSACTION_CATEGORIES_KEY);
+  }
+
   getTransactions(): Transaction[] {
     return this.getFromLocalStorage<Transaction[]>(this.TRANSACTIONS_KEY) || [];
   }
 
   saveTransactions(transactions: Transaction[]): void {
     this.saveToLocalStorage(this.TRANSACTIONS_KEY, transactions);
+  }
+
+  hasTransactions(): boolean {
+    return this.hasKey(this.TRANSACTIONS_KEY);
   }
 
   saveToLocalStorage<T>(key: string, data: T): void {
@@ -59,5 +75,10 @@ export class LocalStorageService {
 
   removeFromLocalStorage(key: string): void {
     localStorage.removeItem(key);
+  }
+
+  hasKey(key: string): boolean {
+    const data = localStorage.getItem(key);
+    return data !== null && data.trim().length > 0;
   }
 }

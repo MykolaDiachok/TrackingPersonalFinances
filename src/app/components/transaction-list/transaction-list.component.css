@@ -1,0 +1,16 @@
+.table-container {
+  width: 100%;
+  margin: 20px 0;
+}
+
+.mat-table {
+  width: 100%;
+}
+
+.mat-header-row, .mat-row {
+  height: 48px;
+}
+
+.mat-sort-header-container {
+  justify-content: flex-start;
+}

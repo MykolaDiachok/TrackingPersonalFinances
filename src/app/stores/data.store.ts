@@ -10,12 +10,14 @@ import { Transaction } from '../models/transaction';
 import { IState } from './i-state';
 import { linkToGlobalState } from './component-state.reducer';
 import { Store } from '@ngrx/store';
+import { ISort } from '../models/i-sort';
 
 export interface AppUsersState extends IState {
   appUsers: AppUser[];
   types: TransactionType[];
   categories: TransactionCategory[];
   transactions: Transaction[];
+  transactionsSort: ISort;
 }
 
 export const initialAppUsersState: AppUsersState = {
@@ -23,6 +25,10 @@ export const initialAppUsersState: AppUsersState = {
   types: [],
   categories: [],
   transactions: [],
+  transactionsSort: {
+    sortBy: '',
+    sortDirection: '',
+  },
 };
 
 @Injectable()
@@ -99,17 +105,44 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     ),
   );
 
+  readonly selectTransactionsSort$ = this.select((state) => state.transactionsSort);
+
+  private readonly updateTransactionsSort = this.updater((state, transactionsSort: ISort) => ({
+    ...state,
+    transactionsSort: transactionsSort,
+  }));
+
+  readonly setTransactionsSort = this.effect<ISort>((trigger$) =>
+    trigger$.pipe(
+      tap((transactionsSort) => {
+        this.updateTransactionsSort(transactionsSort);
+      }),
+    ),
+  );
+
   ngrxOnStateInit() {
-    this.loadAppUserFromLocalStorage();
+    if (!this.localStorageService.hasUsers()) {
+      this.loadAppUsersFromWeb();
+    }
+    this.loadAppUsersFromLocalStorage();
+
+    if (!this.localStorageService.hasTransactionTypes()) {
+      this.loadTypesFromWeb();
+    }
     this.loadTypesFromLocalStorage();
+
+    if (!this.localStorageService.hasTransactionCategories()) {
+      this.loadCategoriesFromWeb();
+    }
     this.loadCategoriesFromLocalStorage();
+
+    if (!this.localStorageService.hasTransactions()) {
+      this.loadTransactionsFromWeb();
+    }
     this.loadTransactionsFromLocalStorage();
-    console.log('DataStore ngrxOnStateInit');
   }
 
-  ngrxOnStoreInit() {
-    console.log('DataStore ngrxOnStoreInit');
-  }
+  ngrxOnStoreInit() {}
 
   private readonly saveAppUsersToLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
@@ -118,13 +151,35 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     ),
   );
 
-  private readonly loadAppUserFromLocalStorage = this.effect<void>((trigger$) =>
+  private readonly loadAppUsersFromWeb = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      switchMap(() => {
+        return this.uploadDataService.getAppUsers();
+      }),
+      tap((appUser) => {
+        this.localStorageService.saveUsers(appUser);
+      }),
+    ),
+  );
+
+  private readonly loadAppUsersFromLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
       switchMap(() => {
         return this.uploadDataService.getAppUsers();
       }),
       tap((appUser) => {
         this.setAppUsers(appUser);
+      }),
+    ),
+  );
+
+  private readonly loadTypesFromWeb = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      switchMap(() => {
+        return this.uploadDataService.getTransactionTypes();
+      }),
+      tap((types) => {
+        this.localStorageService.saveTransactionTypes(types);
       }),
     ),
   );
@@ -147,6 +202,17 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     ),
   );
 
+  private readonly loadCategoriesFromWeb = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      switchMap(() => {
+        return this.uploadDataService.getTransactionCategories();
+      }),
+      tap((categories) => {
+        this.localStorageService.saveTransactionCategories(categories);
+      }),
+    ),
+  );
+
   private readonly saveCategoriesToLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
       withLatestFrom(this.selectCategories$),
@@ -161,6 +227,17 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
       }),
       tap((categories) => {
         this.setCategories(categories);
+      }),
+    ),
+  );
+
+  private readonly loadTransactionsFromWeb = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      switchMap(() => {
+        return this.uploadDataService.getTransactions();
+      }),
+      tap((transactions) => {
+        this.localStorageService.saveTransactions(transactions);
       }),
     ),
   );

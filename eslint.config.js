@@ -1,22 +1,21 @@
 module.exports = [
   {
-    files: ['*.ts', '*.js'], // Apply to both TypeScript and JavaScript files
+    files: ['*.ts', '*.js'],
     plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'), // TypeScript linting
-      '@angular-eslint': require('@angular-eslint/eslint-plugin'), // Angular-specific rules
-      prettier: require('eslint-plugin-prettier'), // Prettier for formatting
-      import: require('eslint-plugin-import'), // Ensure proper import/export syntax
+      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      '@angular-eslint': require('@angular-eslint/eslint-plugin'),
+      prettier: require('eslint-plugin-prettier'),
+      import: require('eslint-plugin-import'),
     },
     rules: {
-      // Custom rules
-      semi: 'error', // Enforce semicolons
-      'prefer-const': 'error', // Prefer `const` over `let` where applicable
-      'no-unused-vars': 'off', // Disable base rule in favor of TypeScript rule
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // TypeScript unused vars
-      '@typescript-eslint/no-explicit-any': 'error', // Allow `any` type (customize as needed)
-      'prettier/prettier': 'error', // Enforce Prettier formatting
+      semi: 'error',
+      'prefer-const': 'error',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error',
+      'prettier/prettier': 'error',
     },
-    ignores: ['node_modules/', 'dist/', 'src/**/*.spec.ts', 'docs/'], // Ignore these directories
+    ignores: ['node_modules/', 'dist/', 'src/**/*.spec.ts', 'docs/'],
   },
   {
     files: ['*.ts'],
@@ -26,21 +25,20 @@ module.exports = [
       'plugin:@typescript-eslint/recommended',
       'plugin:@angular-eslint/recommended',
       'plugin:@angular-eslint/template/process-inline-templates',
-    ], // Use Airbnb and Angular recommendations
+    ],
     rules: {
-      // Airbnb-specific and Angular TypeScript rules
-      '@angular-eslint/component-class-suffix': 'error', // Ensure class names follow Angular conventions
-      '@angular-eslint/no-empty-lifecycle-method': 'warn', // Warn about empty Angular lifecycle methods
+      '@angular-eslint/component-class-suffix': 'error',
+      '@angular-eslint/no-empty-lifecycle-method': 'warn',
     },
   },
   {
     files: ['*.html'],
     plugins: {
-      '@angular-eslint/template': require('@angular-eslint/eslint-plugin-template'), // Template linting
+      '@angular-eslint/template': require('@angular-eslint/eslint-plugin-template'),
     },
     rules: {
-      '@angular-eslint/template/no-any': 'error', // Disallow `any` in templates
-      '@angular-eslint/template/banana-in-box': 'warn', // Ensure proper banana-in-a-box syntax
+      '@angular-eslint/template/no-any': 'error',
+      '@angular-eslint/template/banana-in-box': 'warn',
     },
   },
 ];
