@@ -14,10 +14,11 @@ import { ISort } from '../models/i-sort';
 
 export interface AppUsersState extends IState {
   appUsers: AppUser[];
+  activeUser?: AppUser;
   types: TransactionType[];
   categories: TransactionCategory[];
   transactions: Transaction[];
-  transactionsSort: ISort;
+  transactionsSortType: ISort;
 }
 
 export const initialAppUsersState: AppUsersState = {
@@ -25,7 +26,7 @@ export const initialAppUsersState: AppUsersState = {
   types: [],
   categories: [],
   transactions: [],
-  transactionsSort: {
+  transactionsSortType: {
     sortBy: '',
     sortDirection: '',
   },
@@ -56,6 +57,21 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
       }),
       tap(() => {
         this.saveAppUsersToLocalStorage();
+      }),
+    ),
+  );
+
+  readonly selectActiveUser$ = this.select((state) => state.activeUser);
+
+  private readonly updateActiveUser = this.updater((state, activeUser: AppUser) => ({
+    ...state,
+    activeUser,
+  }));
+
+  readonly setActiveUser = this.effect<AppUser>((trigger$) =>
+    trigger$.pipe(
+      tap((activeUser) => {
+        this.updateActiveUser(activeUser);
       }),
     ),
   );
@@ -105,17 +121,17 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     ),
   );
 
-  readonly selectTransactionsSort$ = this.select((state) => state.transactionsSort);
+  readonly selectTransactionsSortType$ = this.select((state) => state.transactionsSortType);
 
-  private readonly updateTransactionsSort = this.updater((state, transactionsSort: ISort) => ({
+  private readonly updateTransactionsSortType = this.updater((state, transactionsSort: ISort) => ({
     ...state,
-    transactionsSort: transactionsSort,
+    transactionsSortType: transactionsSort,
   }));
 
-  readonly setTransactionsSort = this.effect<ISort>((trigger$) =>
+  readonly setTransactionsSortType = this.effect<ISort>((trigger$) =>
     trigger$.pipe(
       tap((transactionsSort) => {
-        this.updateTransactionsSort(transactionsSort);
+        this.updateTransactionsSortType(transactionsSort);
       }),
     ),
   );
@@ -164,11 +180,9 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
 
   private readonly loadAppUsersFromLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
-      switchMap(() => {
-        return this.uploadDataService.getAppUsers();
-      }),
-      tap((appUser) => {
-        this.setAppUsers(appUser);
+      tap(() => {
+        const appUsers = this.localStorageService.getAppUsers();
+        this.setAppUsers(appUsers);
       }),
     ),
   );
@@ -193,10 +207,8 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
 
   private readonly loadTypesFromLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
-      switchMap(() => {
-        return this.uploadDataService.getTransactionTypes();
-      }),
-      tap((types) => {
+      tap(() => {
+        const types = this.localStorageService.getTransactionTypes();
         this.setTypes(types);
       }),
     ),
@@ -222,10 +234,8 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
 
   private readonly loadCategoriesFromLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
-      switchMap(() => {
-        return this.uploadDataService.getTransactionCategories();
-      }),
-      tap((categories) => {
+      tap(() => {
+        const categories = this.localStorageService.getTransactionCategories();
         this.setCategories(categories);
       }),
     ),
@@ -251,10 +261,8 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
 
   private readonly loadTransactionsFromLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
-      switchMap(() => {
-        return this.uploadDataService.getTransactions();
-      }),
-      tap((transactions) => {
+      tap(() => {
+        const transactions = this.localStorageService.getTransactions();
         this.setTransactions(transactions);
       }),
     ),

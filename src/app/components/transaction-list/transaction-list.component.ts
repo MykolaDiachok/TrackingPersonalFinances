@@ -39,11 +39,11 @@ export class TransactionListComponent implements OnInit, AfterViewInit {
     this.dataStore.selectCategories$.subscribe((categories) => {
       this.transactionCategories = categories;
     });
-    this.dataStore.selectTransactionsSort$.subscribe((sort) => {});
+    this.dataStore.selectTransactionsSortType$.subscribe((sort) => {});
   }
 
   ngAfterViewInit(): void {
-    this.dataStore.selectTransactionsSort$.subscribe((transactionSort) => {
+    this.dataStore.selectTransactionsSortType$.subscribe((transactionSort) => {
       this.sort.active = transactionSort.sortBy;
       this.sort.direction = transactionSort.sortDirection;
       this.dataSource.sort = this.sort;
@@ -61,7 +61,7 @@ export class TransactionListComponent implements OnInit, AfterViewInit {
   }
 
   onSortChange($event: Sort) {
-    this.dataStore.setTransactionsSort({
+    this.dataStore.setTransactionsSortType({
       sortBy: $event.active,
       sortDirection: $event.direction,
     } as ISort);

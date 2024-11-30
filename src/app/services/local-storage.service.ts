@@ -14,9 +14,9 @@ export class LocalStorageService {
   private readonly TRANSACTION_CATEGORIES_KEY = 'transactionCategories';
   private readonly TRANSACTIONS_KEY = 'transactions';
 
-  constructor(private uploadDataService: UploadDataService) {}
+  constructor() {}
 
-  getUsers(): AppUser[] {
+  getAppUsers(): AppUser[] {
     return this.getFromLocalStorage<AppUser[]>(this.APP_USERS_KEY) || [];
   }
 
