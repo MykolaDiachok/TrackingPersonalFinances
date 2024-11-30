@@ -11,6 +11,7 @@ import { IState } from './i-state';
 import { linkToGlobalState } from './component-state.reducer';
 import { Store } from '@ngrx/store';
 import { ISort } from '../models/i-sort';
+import { sortTransactions } from '../extentions/sort-transactions';
 
 export interface AppUsersState extends IState {
   appUsers: AppUser[];
@@ -88,6 +89,9 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
       tap((types) => {
         this.updateTypes(types);
       }),
+      tap(() => {
+        this.saveTypesToLocalStorage();
+      }),
     ),
   );
 
@@ -102,6 +106,9 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     trigger$.pipe(
       tap((categories) => {
         this.updateCategories(categories);
+      }),
+      tap(() => {
+        this.saveCategoriesToLocalStorage();
       }),
     ),
   );
@@ -118,6 +125,9 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
       tap((transactions) => {
         this.updateTransactions(transactions);
       }),
+      tap(() => {
+        this.saveTransactionsToLocalStorage();
+      }),
     ),
   );
 
@@ -132,6 +142,15 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     trigger$.pipe(
       tap((transactionsSort) => {
         this.updateTransactionsSortType(transactionsSort);
+      }),
+      withLatestFrom(this.selectTransactions$),
+      tap(([transactionsSort, transactions]) => {
+        const sorted = sortTransactions(
+          transactions,
+          transactionsSort.sortBy,
+          transactionsSort.sortDirection,
+        );
+        this.setTransactions(sorted);
       }),
     ),
   );

@@ -15,9 +15,7 @@ export function createDynamicUpdateAction(componentName: string) {
   return createAction(actionType, props<{ componentName: string; componentState: IState }>());
 }
 
-export interface ComponentState {
-  [componentName: string]: IState;
-}
+export type ComponentState = Record<string, IState>;
 
 export function componentStateReducer(state: ComponentState | undefined, action: Action) {
   if (action.type.startsWith(COMPONENT_STORE_UPDATE)) {

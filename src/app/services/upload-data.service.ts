@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, shareReplay, tap } from 'rxjs';
+import { map, Observable, shareReplay } from 'rxjs';
 import { AppUser } from '../models/app-user';
 import { AppData } from '../models/app-data';
 import { TransactionType } from '../models/transaction-type';

@@ -6,7 +6,7 @@ import { DataStore } from './stores/data.store';
 import { provideComponentStore } from '@ngrx/component-store';
 import { StoreModule } from '@ngrx/store';
 import { componentStateReducer } from './stores/component-state.reducer';
-import { StoreDevtools, StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 

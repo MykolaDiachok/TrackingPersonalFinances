@@ -39,7 +39,6 @@ export class TransactionListComponent implements OnInit, AfterViewInit {
     this.dataStore.selectCategories$.subscribe((categories) => {
       this.transactionCategories = categories;
     });
-    this.dataStore.selectTransactionsSortType$.subscribe((sort) => {});
   }
 
   ngAfterViewInit(): void {

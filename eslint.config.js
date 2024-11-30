@@ -1,44 +1,51 @@
-module.exports = [
+// @ts-check
+const eslint = require('@eslint/js');
+const tseslint = require('typescript-eslint');
+const angular = require('angular-eslint');
+const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
+
+module.exports = tseslint.config(
+  eslintPluginPrettierRecommended,
   {
-    files: ['*.ts', '*.js'],
-    plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
-      '@angular-eslint': require('@angular-eslint/eslint-plugin'),
-      prettier: require('eslint-plugin-prettier'),
-      import: require('eslint-plugin-import'),
-    },
+    files: ['**/*.ts'],
+    extends: [
+      eslint.configs.recommended,
+      ...tseslint.configs.recommended,
+      ...tseslint.configs.stylistic,
+      ...angular.configs.tsRecommended,
+    ],
+    processor: angular.processInlineTemplates,
     rules: {
       semi: 'error',
       'prefer-const': 'error',
-      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'error',
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase',
+        },
+      ],
+      '@angular-eslint/component-selector': [
+        'error',
+        {
+          type: 'element',
+          prefix: 'app',
+          style: 'kebab-case',
+        },
+      ],
       'prettier/prettier': 'error',
     },
-    ignores: ['node_modules/', 'dist/', 'src/**/*.spec.ts', 'docs/'],
   },
   {
-    files: ['*.ts'],
-    extends: [
-      'airbnb-base',
-      'airbnb-typescript/base',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@angular-eslint/recommended',
-      'plugin:@angular-eslint/template/process-inline-templates',
-    ],
+    files: ['**/*.html'],
+    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
     rules: {
-      '@angular-eslint/component-class-suffix': 'error',
-      '@angular-eslint/no-empty-lifecycle-method': 'warn',
-    },
-  },
-  {
-    files: ['*.html'],
-    plugins: {
-      '@angular-eslint/template': require('@angular-eslint/eslint-plugin-template'),
-    },
-    rules: {
-      '@angular-eslint/template/no-any': 'error',
+      '@angular-eslint/template/no-any': 'warn',
       '@angular-eslint/template/banana-in-box': 'warn',
+      'prettier/prettier': 'error',
     },
   },
-];
+);

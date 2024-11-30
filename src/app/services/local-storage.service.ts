@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { UploadDataService } from './upload-data.service';
 import { AppUser } from '../models/app-user';
 import { TransactionType } from '../models/transaction-type';
 import { TransactionCategory } from '../models/transaction-category';
@@ -13,8 +12,6 @@ export class LocalStorageService {
   private readonly TRANSACTION_TYPES_KEY = 'transactionTypes';
   private readonly TRANSACTION_CATEGORIES_KEY = 'transactionCategories';
   private readonly TRANSACTIONS_KEY = 'transactions';
-
-  constructor() {}
 
   getAppUsers(): AppUser[] {
     return this.getFromLocalStorage<AppUser[]>(this.APP_USERS_KEY) || [];
