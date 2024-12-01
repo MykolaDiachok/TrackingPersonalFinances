@@ -7,46 +7,135 @@
     (matSortChange)="onSortChange($event)">
     <!-- ID Column -->
     <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <th mat-header-cell *matHeaderCellDef>#</th>
       <td mat-cell *matCellDef="let transaction">{{ transaction.id }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let transaction">{{ transaction.name }}</td>
+      <td mat-cell *matCellDef="let transaction">
+        <ng-container *ngIf="editingRow === transaction.id; else viewMode">
+          <input matInput [(ngModel)]="editedTransaction.name" placeholder="Name" />
+        </ng-container>
+        <ng-template #viewMode>
+          {{ transaction.name }}
+        </ng-template>
+      </td>
+      <td mat-footer-cell *matFooterCellDef>Total</td>
     </ng-container>
 
     <!-- Amount Column -->
     <ng-container matColumnDef="amount">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
-      <td mat-cell *matCellDef="let transaction">{{ transaction.amount | currency }}</td>
+      <td mat-cell *matCellDef="let transaction">
+        <ng-container *ngIf="editingRow === transaction.id; else viewModeAmount">
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="editedTransaction.amount"
+            placeholder="Amount"
+            step="0.01"
+            min="0" />
+        </ng-container>
+        <ng-template #viewModeAmount>
+          {{ transaction.amount | currency }}
+        </ng-template>
+      </td>
+      <td mat-footer-cell *matFooterCellDef>{{ totalAmount | currency }}</td>
     </ng-container>
 
     <!-- Category Column -->
     <ng-container matColumnDef="category">
-      <th mat-header-cell *matHeaderCellDef>Category</th>
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-with-filter">
+          <span>Category</span>
+          <input
+            matInput
+            class="filter-input"
+            placeholder="Filter"
+            [matAutocomplete]="autoCategory"
+            [(ngModel)]="autocompleteFilterValues.category"
+            (ngModelChange)="applyFilter('categoryId', $event)" />
+          <mat-autocomplete #autoCategory="matAutocomplete">
+            <mat-option
+              *ngFor="
+                let category of transactionCategories
+                  | filterAutocomplete: autocompleteFilterValues.category
+              "
+              [value]="category.name">
+              {{ category.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </div>
+      </th>
       <td mat-cell *matCellDef="let transaction">
         {{ getCategoryName(transaction.categoryId) }}
       </td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <!-- Type Column -->
     <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-with-filter">
+          <span>Type</span>
+          <input
+            matInput
+            class="filter-input"
+            placeholder="Filter"
+            [matAutocomplete]="autoType"
+            [(ngModel)]="autocompleteFilterValues.type"
+            (ngModelChange)="applyFilter('typeId', $event)" />
+          <mat-autocomplete #autoType="matAutocomplete">
+            <mat-option
+              *ngFor="
+                let type of transactionTypes | filterAutocomplete: autocompleteFilterValues.type
+              "
+              [value]="type.name">
+              {{ type.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </div>
+      </th>
       <td mat-cell *matCellDef="let transaction">
         {{ getTypeName(transaction.typeId) }}
       </td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <!-- Date Column -->
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
       <td mat-cell *matCellDef="let transaction">{{ transaction.date | date }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
-    <!-- Header and Rows -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let transaction">
+        <ng-container *ngIf="editingRow === transaction.id; else actionsTemplate">
+          <button mat-button color="primary" (click)="saveEdit()">Save</button>
+          <button mat-button color="warn" (click)="cancelEdit()">Cancel</button>
+        </ng-container>
+        <ng-template #actionsTemplate>
+          <button mat-icon-button color="primary" (click)="startEdit(transaction)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteTransaction(transaction.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </ng-template>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
   </table>
+  <div class="add-button">
+    <button mat-raised-button color="primary" (click)="addTransaction()">Add Transaction</button>
+  </div>
 </div>

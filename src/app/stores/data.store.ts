@@ -1,9 +1,9 @@
 import { AppUser } from '../models/app-user';
 import { Injectable } from '@angular/core';
-import { ComponentStore, OnStateInit, OnStoreInit } from '@ngrx/component-store';
+import { ComponentStore, OnStateInit } from '@ngrx/component-store';
 import { LocalStorageService } from '../services/local-storage.service';
 import { UploadDataService } from '../services/upload-data.service';
-import { switchMap, tap, withLatestFrom } from 'rxjs';
+import { of, switchMap, tap, withLatestFrom } from 'rxjs';
 import { TransactionType } from '../models/transaction-type';
 import { TransactionCategory } from '../models/transaction-category';
 import { Transaction } from '../models/transaction';
@@ -12,6 +12,7 @@ import { linkToGlobalState } from './component-state.reducer';
 import { Store } from '@ngrx/store';
 import { ISort } from '../models/i-sort';
 import { sortTransactions } from '../extentions/sort-transactions';
+import { filterTransactions } from '../extentions/filter-transactions';
 
 export interface AppUsersState extends IState {
   appUsers: AppUser[];
@@ -19,7 +20,10 @@ export interface AppUsersState extends IState {
   types: TransactionType[];
   categories: TransactionCategory[];
   transactions: Transaction[];
+  displayedTransactions: Transaction[];
   transactionsSortType: ISort;
+  filter: Record<string, string | undefined>;
+  totalAmount: number;
 }
 
 export const initialAppUsersState: AppUsersState = {
@@ -27,14 +31,17 @@ export const initialAppUsersState: AppUsersState = {
   types: [],
   categories: [],
   transactions: [],
+  displayedTransactions: [],
   transactionsSortType: {
     sortBy: '',
     sortDirection: '',
   },
+  filter: {},
+  totalAmount: 0,
 };
 
 @Injectable()
-export class DataStore extends ComponentStore<AppUsersState> implements OnStoreInit, OnStateInit {
+export class DataStore extends ComponentStore<AppUsersState> implements OnStateInit {
   constructor(
     protected globalStore: Store,
     private localStorageService: LocalStorageService,
@@ -72,6 +79,7 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
   readonly setActiveUser = this.effect<AppUser>((trigger$) =>
     trigger$.pipe(
       tap((activeUser) => {
+        this.localStorageService.saveActiveUser(activeUser);
         this.updateActiveUser(activeUser);
       }),
     ),
@@ -120,15 +128,13 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     transactions: [...transactions],
   }));
 
-  readonly setTransactions = this.effect<Transaction[]>((trigger$) =>
-    trigger$.pipe(
-      tap((transactions) => {
-        this.updateTransactions(transactions);
-      }),
-      tap(() => {
-        this.saveTransactionsToLocalStorage();
-      }),
-    ),
+  readonly selectDisplayedTransactions$ = this.select((state) => state.displayedTransactions);
+
+  private readonly updateDisplayedTransactions = this.updater(
+    (state, transactions: Transaction[]) => ({
+      ...state,
+      displayedTransactions: [...transactions],
+    }),
   );
 
   readonly selectTransactionsSortType$ = this.select((state) => state.transactionsSortType);
@@ -138,19 +144,100 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     transactionsSortType: transactionsSort,
   }));
 
+  readonly selectFilter$ = this.select((state) => state.filter);
+
+  private readonly updateFilter = this.updater(
+    (state, filter: Record<string, string | undefined>) => ({
+      ...state,
+      filter: { ...filter },
+    }),
+  );
+
+  readonly setDisplayedTransactions = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      withLatestFrom(
+        this.selectTransactions$,
+        this.selectTransactionsSortType$,
+        this.selectFilter$,
+        this.selectCategories$,
+        this.selectTypes$,
+      ),
+      switchMap(([, transactions, sort, filter, categories, types]) => {
+        const sorted = sortTransactions(transactions, sort.sortBy, sort.sortDirection);
+        const typedFilter = filter as Partial<Record<keyof Transaction, string | undefined>>;
+        return of(filterTransactions(sorted, typedFilter, categories, types));
+      }),
+      tap((transactions) => {
+        this.updateDisplayedTransactions(transactions);
+      }),
+    ),
+  );
+
+  readonly deleteTransaction = this.effect<number>((trigger$) =>
+    trigger$.pipe(
+      withLatestFrom(this.selectTransactions$),
+      tap(([id, transactions]) => {
+        const updatedTransactions = transactions.filter((t) => t.id !== id);
+        this.setTransactions(updatedTransactions);
+      }),
+    ),
+  );
+
   readonly setTransactionsSortType = this.effect<ISort>((trigger$) =>
     trigger$.pipe(
       tap((transactionsSort) => {
         this.updateTransactionsSortType(transactionsSort);
       }),
+      tap(() => this.setDisplayedTransactions()),
+    ),
+  );
+
+  readonly setFilter = this.effect<Record<string, string | undefined>>((trigger$) =>
+    trigger$.pipe(
+      withLatestFrom(this.selectFilter$),
+      tap(([filter, fromState]) => {
+        this.updateFilter({ ...fromState, ...filter });
+      }),
+      tap(() => this.setDisplayedTransactions()),
+    ),
+  );
+
+  readonly setTransactions = this.effect<Transaction[]>((trigger$) =>
+    trigger$.pipe(
+      tap((transactions) => {
+        this.updateTransactions(transactions);
+      }),
+      tap(() => this.setDisplayedTransactions()),
+      tap(() => this.calculateTotalAmount()),
+      tap(() => {
+        this.saveTransactionsToLocalStorage();
+      }),
+    ),
+  );
+
+  readonly selectTotalAmount$ = this.select((state) => state.totalAmount);
+
+  private readonly updateTotalAmount = this.updater((state, totalAmount: number) => ({
+    ...state,
+    totalAmount,
+  }));
+
+  readonly setTotalAmount = this.effect<number>((trigger$) =>
+    trigger$.pipe(
+      tap((totalAmount) => {
+        this.updateTotalAmount(totalAmount);
+      }),
+    ),
+  );
+
+  readonly calculateTotalAmount = this.effect<void>((trigger$) =>
+    trigger$.pipe(
       withLatestFrom(this.selectTransactions$),
-      tap(([transactionsSort, transactions]) => {
-        const sorted = sortTransactions(
-          transactions,
-          transactionsSort.sortBy,
-          transactionsSort.sortDirection,
-        );
-        this.setTransactions(sorted);
+      tap(([, transactions]) => {
+        const totalAmount = transactions.reduce((acc, t) => {
+          return t.typeId === 1 ? acc + t.amount : acc - t.amount;
+        }, 0);
+        this.setTotalAmount(totalAmount);
       }),
     ),
   );
@@ -160,6 +247,8 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
       this.loadAppUsersFromWeb();
     }
     this.loadAppUsersFromLocalStorage();
+
+    this.loadActiveUserFromLocalStorage();
 
     if (!this.localStorageService.hasTransactionTypes()) {
       this.loadTypesFromWeb();
@@ -176,8 +265,6 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
     }
     this.loadTransactionsFromLocalStorage();
   }
-
-  ngrxOnStoreInit() {}
 
   private readonly saveAppUsersToLocalStorage = this.effect<void>((trigger$) =>
     trigger$.pipe(
@@ -202,6 +289,17 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStoreI
       tap(() => {
         const appUsers = this.localStorageService.getAppUsers();
         this.setAppUsers(appUsers);
+      }),
+    ),
+  );
+
+  private readonly loadActiveUserFromLocalStorage = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      tap(() => {
+        const activeUser = this.localStorageService.getActiveUser();
+        if (activeUser) {
+          this.setActiveUser(activeUser);
+        }
       }),
     ),
   );

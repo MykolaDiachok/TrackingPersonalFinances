@@ -9,6 +9,7 @@ import { Transaction } from '../models/transaction';
 })
 export class LocalStorageService {
   private readonly APP_USERS_KEY = 'appUsers';
+  private readonly ACTIVE_USER_KEY = 'activeUser';
   private readonly TRANSACTION_TYPES_KEY = 'transactionTypes';
   private readonly TRANSACTION_CATEGORIES_KEY = 'transactionCategories';
   private readonly TRANSACTIONS_KEY = 'transactions';
@@ -23,6 +24,18 @@ export class LocalStorageService {
 
   hasUsers(): boolean {
     return this.hasKey(this.APP_USERS_KEY);
+  }
+
+  getActiveUser(): AppUser | null {
+    return this.getFromLocalStorage<AppUser>(this.ACTIVE_USER_KEY);
+  }
+
+  saveActiveUser(user: AppUser): void {
+    this.saveToLocalStorage(this.ACTIVE_USER_KEY, user);
+  }
+
+  hasActiveUser(): boolean {
+    return this.hasKey(this.ACTIVE_USER_KEY);
   }
 
   getTransactionTypes(): TransactionType[] {

@@ -1,0 +1,27 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <div class="menu">
+    <button mat-button [matMenuTriggerFor]="menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item routerLink="/transactions" routerLinkActive="active">
+        <mat-icon>list</mat-icon>
+        Transaction List
+      </button>
+      <button mat-menu-item routerLink="/categories" routerLinkActive="active">
+        <mat-icon>category</mat-icon>
+        Category
+      </button>
+    </mat-menu>
+  </div>
+  <span>Expense Tracker Application</span>
+  <span class="example-spacer"></span>
+
+  <mat-form-field appearance="outline" class="user-select">
+    <mat-select [(ngModel)]="activeUser" (selectionChange)="onUserChange($event)">
+      <mat-option *ngFor="let user of users" [value]="user.id">
+        {{ user.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-toolbar>

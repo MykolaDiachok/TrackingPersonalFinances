@@ -1,0 +1,10 @@
+
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
+
+app-transaction-list {
+  margin-bottom: 20px; /* Відступ між транзакціями та контентом маршруту */
+}
