@@ -32,3 +32,43 @@
   font-weight: bold;
   background-color: #f1f1f1;
 }
+
+.date-input {
+  width: 180px;
+}
+
+.mat-form-field {
+  max-width: 100%;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.save-button-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.validation-hint {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.save-button-wrapper:hover .validation-hint {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}

@@ -1,38 +1,44 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { DataStore } from '../../stores/data.store';
-import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { Transaction } from '../../models/transaction';
 import { TransactionType } from '../../models/transaction-type';
 import { TransactionCategory } from '../../models/transaction-category';
 import { ISort } from '../../models/i-sort';
-import { MatInput } from '@angular/material/input';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AutoUnsubscribe } from '../../extentions/auto-unsubscribe';
-import { MatAutocomplete, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FilterAutocompletePipe } from '../../pipes/filter-autocomplete.pipe';
+import { NgxMaskDirective } from 'ngx-mask';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { CommonModule, CurrencyPipe } from '@angular/common';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-transaction-list',
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatTableModule,
-    MatPaginatorModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatSortModule,
-
-    MatInput,
-    MatButton,
-    MatIcon,
+    MatAutocompleteModule,
+    MatSelectModule,
     FormsModule,
-    MatIconButton,
-    MatAutocompleteTrigger,
-    MatAutocomplete,
-    MatOption,
+    NgxMaskDirective,
     FilterAutocompletePipe,
+    MatNativeDateModule,
+    CurrencyPipe,
+    MatButtonModule,
+    MatIconModule,
   ],
   templateUrl: './transaction-list.component.html',
   standalone: true,
@@ -51,7 +57,7 @@ export class TransactionListComponent extends AutoUnsubscribe implements OnInit,
 
   filterValues: Record<string, string | undefined> = {};
 
-  editingRow?: number;
+  editingRow?: number | null;
 
   totalAmount = 0;
 
@@ -63,6 +69,12 @@ export class TransactionListComponent extends AutoUnsubscribe implements OnInit,
   };
 
   editedTransaction: Transaction = {} as Transaction;
+
+  date = new Date();
+
+  minDate = new Date(2020, 0, 1);
+
+  maxDate = new Date();
 
   constructor(private dataStore: DataStore) {
     super();
@@ -117,21 +129,75 @@ export class TransactionListComponent extends AutoUnsubscribe implements OnInit,
     this.dataStore.setFilter(this.filterValues);
   }
 
-  addTransaction() {}
+  addTransaction() {
+    this.editedTransaction = {
+      id: null,
+      name: '',
+      userId: undefined,
+      amount: 0,
+      categoryId: undefined,
+      typeId: undefined,
+      date: new Date(),
+    };
+    this.editingRow = null;
+    this.dataSource.data = [...this.dataSource.data, this.editedTransaction];
+  }
 
-  saveEdit() {}
+  saveEdit() {
+    if (this.editedTransaction.id) {
+      this.dataStore.editExistingTransaction(this.editedTransaction);
+    } else {
+      this.dataStore.addNewTransaction(this.editedTransaction);
+    }
+
+    this.editingRow = undefined;
+    this.editedTransaction = {} as Transaction;
+  }
 
   cancelEdit() {
+    if (this.editingRow === null) {
+      this.dataSource.data = this.dataSource.data.filter((t) => t.id !== null);
+    }
+
     this.editingRow = undefined;
     this.editedTransaction = {} as Transaction;
   }
 
   startEdit(transaction: Transaction) {
     this.editingRow = transaction.id;
-    this.editedTransaction = { ...transaction };
+    this.editedTransaction = {
+      ...transaction,
+      date: transaction.date || new Date(),
+    };
   }
 
   deleteTransaction(id: number) {
     this.dataStore.deleteTransaction(id);
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+
+    if (!this.editedTransaction?.name) {
+      errors.push('Name is required.');
+    }
+
+    if (!this.editedTransaction?.amount || this.editedTransaction.amount <= 0) {
+      errors.push('Amount must be greater than 0.');
+    }
+
+    if (!this.editedTransaction?.categoryId) {
+      errors.push('Category is required.');
+    }
+
+    if (!this.editedTransaction?.typeId) {
+      errors.push('Type is required.');
+    }
+
+    if (!this.editedTransaction?.date) {
+      errors.push('Date is required.');
+    }
+
+    return errors;
   }
 }

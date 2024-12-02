@@ -128,6 +128,19 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStateI
     transactions: [...transactions],
   }));
 
+  private readonly addTransaction = this.updater((state, transaction: Transaction) => ({
+    ...state,
+    transactions: [...state.transactions, transaction],
+  }));
+
+  private readonly editTransaction = this.updater((state, transaction: Transaction) => {
+    const transactions = state.transactions.map((t) => (t.id === transaction.id ? transaction : t));
+    return {
+      ...state,
+      transactions: [...transactions],
+    };
+  });
+
   readonly selectDisplayedTransactions$ = this.select((state) => state.displayedTransactions);
 
   private readonly updateDisplayedTransactions = this.updater(
@@ -183,6 +196,27 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStateI
     ),
   );
 
+  readonly addNewTransaction = this.effect<Transaction>((trigger$) =>
+    trigger$.pipe(
+      withLatestFrom(this.selectTransactions$),
+      tap(([newTransaction, transactions]) => {
+        const newId = transactions.reduce((max, t) => Math.max(max, t.id ?? 0), 0) + 1;
+        const newTransactionWithId = { ...newTransaction, id: newId };
+        this.addTransaction(newTransactionWithId);
+      }),
+      tap(() => this.refreshDisplayedTransactionsAndSaveToLocalStorage()),
+    ),
+  );
+
+  readonly editExistingTransaction = this.effect<Transaction>((trigger$) =>
+    trigger$.pipe(
+      tap((editedTransaction) => {
+        this.editTransaction(editedTransaction);
+      }),
+      tap(() => this.refreshDisplayedTransactionsAndSaveToLocalStorage()),
+    ),
+  );
+
   readonly setTransactionsSortType = this.effect<ISort>((trigger$) =>
     trigger$.pipe(
       tap((transactionsSort) => {
@@ -202,16 +236,24 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStateI
     ),
   );
 
+  readonly refreshDisplayedTransactionsAndSaveToLocalStorage = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      tap(() => {
+        this.setDisplayedTransactions();
+      }),
+      tap(() => this.calculateTotalAmount()),
+      tap(() => {
+        this.saveTransactionsToLocalStorage();
+      }),
+    ),
+  );
+
   readonly setTransactions = this.effect<Transaction[]>((trigger$) =>
     trigger$.pipe(
       tap((transactions) => {
         this.updateTransactions(transactions);
       }),
-      tap(() => this.setDisplayedTransactions()),
-      tap(() => this.calculateTotalAmount()),
-      tap(() => {
-        this.saveTransactionsToLocalStorage();
-      }),
+      tap(() => this.refreshDisplayedTransactionsAndSaveToLocalStorage()),
     ),
   );
 
@@ -235,7 +277,7 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStateI
       withLatestFrom(this.selectTransactions$),
       tap(([, transactions]) => {
         const totalAmount = transactions.reduce((acc, t) => {
-          return t.typeId === 1 ? acc + t.amount : acc - t.amount;
+          return t.typeId === 1 ? acc + (t.amount ?? 0) : acc - (t.amount ?? 0);
         }, 0);
         this.setTotalAmount(totalAmount);
       }),

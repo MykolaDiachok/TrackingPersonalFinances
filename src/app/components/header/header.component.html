@@ -16,12 +16,11 @@
   </div>
   <span>Expense Tracker Application</span>
   <span class="example-spacer"></span>
-
-  <mat-form-field appearance="outline" class="user-select">
+  <span class="user-select">
     <mat-select [(ngModel)]="activeUser" (selectionChange)="onUserChange($event)">
       <mat-option *ngFor="let user of users" [value]="user.id">
         {{ user.name }}
       </mat-option>
     </mat-select>
-  </mat-form-field>
+  </span>
 </mat-toolbar>

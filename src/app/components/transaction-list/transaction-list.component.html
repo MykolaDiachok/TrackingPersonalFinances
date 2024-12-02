@@ -17,7 +17,15 @@
       <th mat-header-cell *matHeaderCellDef>Name</th>
       <td mat-cell *matCellDef="let transaction">
         <ng-container *ngIf="editingRow === transaction.id; else viewMode">
-          <input matInput [(ngModel)]="editedTransaction.name" placeholder="Name" />
+          <mat-form-field>
+            <input
+              required
+              matInput
+              [(ngModel)]="editedTransaction.name"
+              placeholder="Name"
+              #resultNameModel="ngModel" />
+            <mat-error *ngIf="resultNameModel.hasError('required')">Name is required! </mat-error>
+          </mat-form-field>
         </ng-container>
         <ng-template #viewMode>
           {{ transaction.name }}
@@ -31,13 +39,23 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
       <td mat-cell *matCellDef="let transaction">
         <ng-container *ngIf="editingRow === transaction.id; else viewModeAmount">
-          <input
-            matInput
-            type="number"
-            [(ngModel)]="editedTransaction.amount"
-            placeholder="Amount"
-            step="0.01"
-            min="0" />
+          <mat-form-field>
+            <input
+              required
+              matInput
+              type="text"
+              [(ngModel)]="editedTransaction.amount"
+              placeholder="Amount"
+              mask="separator.2"
+              decimalMarker="."
+              prefix="$"
+              [allowNegativeNumbers]="false"
+              [leadZero]="true"
+              #resultAmountModel="ngModel" />
+            <mat-error *ngIf="resultAmountModel.hasError('required')"
+              >Amount is required!
+            </mat-error>
+          </mat-form-field>
         </ng-container>
         <ng-template #viewModeAmount>
           {{ transaction.amount | currency }}
@@ -71,7 +89,24 @@
         </div>
       </th>
       <td mat-cell *matCellDef="let transaction">
-        {{ getCategoryName(transaction.categoryId) }}
+        <ng-container *ngIf="editingRow === transaction.id; else viewModeCategory">
+          <mat-form-field>
+            <mat-select
+              required
+              [(ngModel)]="editedTransaction.categoryId"
+              #resultCategoryModel="ngModel">
+              <mat-option *ngFor="let category of transactionCategories" [value]="category.id">
+                {{ category.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="resultCategoryModel.hasError('required')"
+              >Category is required!
+            </mat-error>
+          </mat-form-field>
+        </ng-container>
+        <ng-template #viewModeCategory>
+          {{ getCategoryName(transaction.categoryId) }}
+        </ng-template>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
@@ -100,7 +135,19 @@
         </div>
       </th>
       <td mat-cell *matCellDef="let transaction">
-        {{ getTypeName(transaction.typeId) }}
+        <ng-container *ngIf="editingRow === transaction.id; else viewModeType">
+          <mat-form-field>
+            <mat-select required [(ngModel)]="editedTransaction.typeId" #resultTypeModel="ngModel">
+              <mat-option *ngFor="let type of transactionTypes" [value]="type.id">
+                {{ type.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="resultTypeModel.hasError('required')">Type is required!</mat-error>
+          </mat-form-field>
+        </ng-container>
+        <ng-template #viewModeType>
+          {{ getTypeName(transaction.typeId) }}
+        </ng-template>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
@@ -108,7 +155,37 @@
     <!-- Date Column -->
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-      <td mat-cell *matCellDef="let transaction">{{ transaction.date | date }}</td>
+      <td mat-cell *matCellDef="let transaction">
+        <ng-container *ngIf="editingRow === transaction.id; else viewModeDate">
+          <mat-datepicker-toggle [for]="resultPicker"></mat-datepicker-toggle>
+          <mat-form-field>
+            <input
+              matInput
+              required
+              #resultPickerModel="ngModel"
+              [matDatepicker]="resultPicker"
+              [(ngModel)]="editedTransaction.date"
+              [min]="minDate"
+              [max]="maxDate" />
+            <mat-datepicker #resultPicker> </mat-datepicker>
+            <mat-error *ngIf="resultPickerModel.hasError('matDatepickerParse')">
+              "{{ resultPickerModel.getError('matDatepickerParse').text }}" is not a valid date!
+            </mat-error>
+            <mat-error *ngIf="resultPickerModel.hasError('matDatepickerMin')">
+              Minimum date should be {{ minDate | date: 'medium' }}</mat-error
+            >
+            <mat-error *ngIf="resultPickerModel.hasError('matDatepickerMax')">
+              Maximum date should be {{ maxDate | date: 'medium' }}!
+            </mat-error>
+            <mat-error *ngIf="resultPickerModel.hasError('required')">
+              Date is required!
+            </mat-error>
+          </mat-form-field>
+        </ng-container>
+        <ng-template #viewModeDate>
+          {{ transaction.date | date: 'medium' }}
+        </ng-template>
+      </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
@@ -116,7 +193,21 @@
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let transaction">
         <ng-container *ngIf="editingRow === transaction.id; else actionsTemplate">
-          <button mat-button color="primary" (click)="saveEdit()">Save</button>
+          <div class="save-button-wrapper">
+            <button
+              mat-button
+              color="primary"
+              (click)="saveEdit()"
+              [disabled]="getValidationErrors().length > 0"
+              class="save-button">
+              Save
+            </button>
+            <div class="validation-hint" *ngIf="getValidationErrors().length > 0">
+              <ul>
+                <li *ngFor="let error of getValidationErrors()">{{ error }}</li>
+              </ul>
+            </div>
+          </div>
           <button mat-button color="warn" (click)="cancelEdit()">Cancel</button>
         </ng-container>
         <ng-template #actionsTemplate>
