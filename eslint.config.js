@@ -8,6 +8,7 @@ module.exports = tseslint.config(
   eslintPluginPrettierRecommended,
   {
     files: ['**/*.ts'],
+    ignores: ['./docs/**'],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
