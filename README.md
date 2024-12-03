@@ -16,7 +16,7 @@ You need to create a web application for tracking personal finances. The user sh
     - -[x] Category (e.g., "Groceries," "Salary," "Entertainment," etc.)
     - -[x] Transaction date (default to current date but can be changed)
 2. **Viewing Total Balance**
-    -  -[ ]  The application should display the current balance: the total amount of income minus expenses.
+    -  -[x]  The application should display the current balance: the total amount of income minus expenses.
 3. **Transaction List**
     - -[x] The user can view all transactions in a list format:
         -[x] Transaction name

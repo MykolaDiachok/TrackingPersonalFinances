@@ -72,3 +72,24 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+@media (max-width: 600px) {
+  .mat-table {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .mat-header-cell, .mat-cell {
+    padding: 8px;
+    font-size: 0.875rem;
+  }
+
+  .mat-header-row, .mat-row {
+    display: block;
+  }
+
+  .mat-header-cell, .mat-cell {
+    display: block;
+    width: 100%;
+  }
+}

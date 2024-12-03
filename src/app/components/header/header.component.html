@@ -18,8 +18,13 @@
       </button>
     </mat-menu>
   </div>
-  <span>Expense Tracker Application</span>
-  <span class="example-spacer"></span>
+  <span class="app-name">Expense Tracker Application</span>
+  <span class="spacer"></span>
+  <div class="total-container">
+    <span class="total-label">Balance:</span>
+    <span class="total-amount">{{ totalAmount | currency }}</span>
+  </div>
+  <span class="spacer"></span>
   <span class="user-select">
     <mat-form-field>
       <mat-select [(ngModel)]="activeUser" (selectionChange)="onUserChange($event)">

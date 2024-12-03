@@ -13,7 +13,10 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/tpf",
+            "outputPath": {
+              "base": "wwwroot",
+              "browser": ""
+            },
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -21,6 +24,10 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              },
               {
                 "glob": "**/*",
                 "input": "src/assets",

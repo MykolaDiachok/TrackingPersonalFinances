@@ -8,7 +8,7 @@ import { MatButton } from '@angular/material/button';
 import { MatFormField } from '@angular/material/form-field';
 import { MatOption, MatSelect, MatSelectChange } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
-import { NgForOf } from '@angular/common';
+import { CurrencyPipe, NgForOf } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -28,17 +28,22 @@ import { MatIconModule } from '@angular/material/icon';
     RouterLink,
     RouterLinkActive,
     MatIconModule,
+    CurrencyPipe,
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   standalone: true,
 })
 export class HeaderComponent extends AutoUnsubscribe implements OnInit {
+  users: AppUser[] = [];
+
+  activeUser?: AppUser;
+
+  totalAmount?: number;
+
   constructor(private dataStore: DataStore) {
     super();
   }
-  users: AppUser[] = [];
-  activeUser?: AppUser;
 
   ngOnInit(): void {
     this.safeSubscribe(this.dataStore.selectAppUsers$, (users) => {
@@ -46,6 +51,9 @@ export class HeaderComponent extends AutoUnsubscribe implements OnInit {
     });
     this.safeSubscribe(this.dataStore.selectActiveUser$, (user) => {
       this.activeUser = user;
+    });
+    this.safeSubscribe(this.dataStore.selectTotalAmount$, (totalAmount) => {
+      this.totalAmount = totalAmount;
     });
   }
 
