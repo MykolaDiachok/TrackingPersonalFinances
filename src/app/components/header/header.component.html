@@ -8,6 +8,10 @@
         <mat-icon>list</mat-icon>
         Transaction List
       </button>
+      <button mat-menu-item routerLink="/add" routerLinkActive="active">
+        <mat-icon>add</mat-icon>
+        Add transaction
+      </button>
       <button mat-menu-item routerLink="/categories" routerLinkActive="active">
         <mat-icon>category</mat-icon>
         Category
@@ -17,10 +21,12 @@
   <span>Expense Tracker Application</span>
   <span class="example-spacer"></span>
   <span class="user-select">
-    <mat-select [(ngModel)]="activeUser" (selectionChange)="onUserChange($event)">
-      <mat-option *ngFor="let user of users" [value]="user.id">
-        {{ user.name }}
-      </mat-option>
-    </mat-select>
+    <mat-form-field>
+      <mat-select [(ngModel)]="activeUser" (selectionChange)="onUserChange($event)">
+        <mat-option *ngFor="let user of users" [value]="user.id">
+          {{ user.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </span>
 </mat-toolbar>

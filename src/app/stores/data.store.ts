@@ -277,7 +277,8 @@ export class DataStore extends ComponentStore<AppUsersState> implements OnStateI
       withLatestFrom(this.selectTransactions$),
       tap(([, transactions]) => {
         const totalAmount = transactions.reduce((acc, t) => {
-          return t.typeId === 1 ? acc + (t.amount ?? 0) : acc - (t.amount ?? 0);
+          const amount = t.amount ?? 0;
+          return t.typeId === 1 ? acc + amount : acc - amount;
         }, 0);
         this.setTotalAmount(totalAmount);
       }),

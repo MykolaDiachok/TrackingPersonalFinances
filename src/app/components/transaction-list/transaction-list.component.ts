@@ -200,4 +200,13 @@ export class TransactionListComponent extends AutoUnsubscribe implements OnInit,
 
     return errors;
   }
+
+  onAmountChange(value: string) {
+    this.editedTransaction.amount = parseFloat(value.replace(/[^\d.]/g, '')) || 0;
+  }
+
+  selectAll(event: FocusEvent) {
+    const input = event.target as HTMLInputElement;
+    input.select();
+  }
 }

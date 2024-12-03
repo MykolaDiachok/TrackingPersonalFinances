@@ -45,6 +45,8 @@
               matInput
               type="text"
               [(ngModel)]="editedTransaction.amount"
+              (ngModelChange)="onAmountChange($event)"
+              (focus)="selectAll($event)"
               placeholder="Amount"
               mask="separator.2"
               decimalMarker="."
