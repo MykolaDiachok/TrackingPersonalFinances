@@ -6,12 +6,13 @@ import { AppData } from '../models/app-data';
 import { TransactionType } from '../models/transaction-type';
 import { TransactionCategory } from '../models/transaction-category';
 import { Transaction } from '../models/transaction';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UploadDataService {
-  private dataUrl = '/TrackingPersonalFinances/assets/jsons/data.json';
+  private dataUrl = environment.dataUrl;
   private appDataCache$?: Observable<AppData>;
 
   constructor(private http: HttpClient) {}
