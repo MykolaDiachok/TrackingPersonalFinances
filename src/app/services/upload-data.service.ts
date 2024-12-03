@@ -11,7 +11,7 @@ import { Transaction } from '../models/transaction';
   providedIn: 'root',
 })
 export class UploadDataService {
-  private dataUrl = '/assets/jsons/data.json';
+  private dataUrl = 'assets/jsons/data.json';
   private appDataCache$?: Observable<AppData>;
 
   constructor(private http: HttpClient) {}
