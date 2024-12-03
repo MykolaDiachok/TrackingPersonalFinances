@@ -19,6 +19,7 @@ export class UploadDataService {
 
   getAppData(): Observable<AppData> {
     if (!this.appDataCache$) {
+      console.log('url', this.dataUrl);
       this.appDataCache$ = this.http.get<AppData>(this.dataUrl).pipe(shareReplay(1));
     }
     return this.appDataCache$;
